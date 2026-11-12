@@ -2,6 +2,10 @@ import "package:flutter/material.dart";
 import 'package:flutter/cupertino.dart';
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+import "package:school/utils/route_utils.dart";
+import "package:school/features/schools/model/school.dart";
+import "package:school/features/schools/school_detail.dart";
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -11,6 +15,69 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoledKey = GlobalKey<ScaffoldState>();
+
+  final List<School> _school = [
+  School(
+    name: "SILVANEI MARTINS",
+    description: "Virando a noite atrás da grana!",
+  ),
+  School(
+    name: "DINHEIRO DA MEIA-NOITE",
+    description: "Noites de trabalho, ganhos maiores!",
+  ),
+  School(
+    name: "DESENVOLVIMENTO E COMMITS",
+    description: "Publicando código, colhendo lucros!",
+  ),
+  School(
+    name: "EQUIPE SEM DORMIR",
+    description: "O corre noturno nunca falha!",
+  ),
+  School(
+    name: "CAÇADORES DE BOLSAS",
+    description: "O sono é temporário, o fluxo de caixa é para sempre!",
+  ),
+  School(
+    name: "CÓDIGO E CAFÉ",
+    description: "Transformando cafeína em saldo positivo!",
+  ),
+  School(
+    name: "MADRUGADA LUCRATIVA",
+    description: "Enquanto o mundo dorme, a conta cresce!",
+  ),
+  School(
+    name: "FÁBRICA DE DEPLOY",
+    description: "Subindo sistemas e faturando alto!",
+  ),
+  School(
+    name: "CLUBE DA INSÔNIA",
+    description: "Cada hora acordado vale ouro no bolso!",
+  ),
+  School(
+    name: "IMPÉRIO DO CÓDIGO",
+    description: "Construindo riqueza linha por linha!",
+  ),
+  School(
+    name: "ESQUADRÃO DO LUCRO",
+    description: "Foco total na meta e zero descanso!",
+  ),
+  School(
+    name: "TURNO DA RIQUEZA",
+    description: "O verdadeiro expediente começa depois das dez!",
+  ),
+  School(
+    name: "MESTRES DO FREELA",
+    description: "Entregando projetos e multiplicando ganhos!",
+  ),
+  School(
+    name: "OPERAÇÃO CAIXA ALTA",
+    description: "Virando a chave do sucesso na madrugada!",
+  ),
+  School(
+    name: "MENTES MILIONÁRIAS",
+    description: "Ideias noturnas que geram resultados reais!",
+  ),
+];
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +109,6 @@ class _HomeScreenState extends State<HomeScreen> {
         // TODO: Items do drawer vai aqui!
       ),
       body: SingleChildScrollView(
-        padding: const .symmetric(horizontal: 4.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -60,12 +126,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Lista da escola!
             Column(
-              children: List.generate(13, (index) {
+              children: List.generate(_school.length, (index) {
+                final School school = _school[index];
+                
                 return ListTile(
                   onTap: () {
-                    // TODO: FUNÇÃO AQUI...
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (route) => SchoolDetail(school: school))
+                    );
                   },
-                  leading: SizedBox(
+                  
+                  // Icone do usuário!
+                  leading: Hero(
+                    tag: "school_detail",
+                    child: SizedBox(
                     height: 40,
                     width: 40,
                     child: Stack(
@@ -117,14 +191,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  ),
                   // TRAZER INFO DO BACKEND!
                   title: Text(
-                    "SILVANEI MARTINS 🇧🇷 🔒 💵",
+                    school.name,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
                   subtitle: Text(
-                    "Virando a noite atrás da grana!",
+                    school.description,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import "package:school/core/app_theme.dart";
-import "package:school/splash/splash_screen.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+
+import "package:school/core/app_theme.dart";
+import "features/splash/splash_screen.dart";
 
 void main() {
   runApp(

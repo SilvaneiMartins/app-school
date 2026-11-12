@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
-import "package:flutter/cupertino.dart";
-import "package:school/home/home_screen.dart";
+
 import "package:school/utils/route_utils.dart";
+import "package:school/features/home/home_screen.dart";
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
