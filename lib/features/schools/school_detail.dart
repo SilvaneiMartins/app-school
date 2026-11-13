@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter/cupertino.dart";
+import 'package:flutter/rendering.dart';
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:school/core/app_assets.dart" show AppAssets;
 
@@ -7,27 +8,68 @@ import "package:school/features/home/home_screen.dart";
 import "package:school/features/schools/model/school.dart";
 import "package:school/features/schools/screens/school_home_screen.dart";
 import "package:school/features/schools/screens/school_message_screen.dart";
+import "package:school/features/schools/providers/school_detail_scroll_controller_provider.dart";
 
-class SchoolDetail extends StatefulWidget {
+class SchoolDetail extends ConsumerStatefulWidget {
   final School school;
 
   const SchoolDetail({super.key, required this.school});
 
   @override
-  State<SchoolDetail> createState() => _SchoolDetailState();
+  ConsumerState<SchoolDetail> createState() => _SchoolDetailState();
 }
 
-class _SchoolDetailState extends State<SchoolDetail> {
+class _SchoolDetailState extends ConsumerState<SchoolDetail>
+    with TickerProviderStateMixin {
+  late final AnimationController _navBarAnimationController;
+  late final Tween<Offset> _tween;
 
   final PageController _pageController = PageController();
+  late final ScrollController scrollController;
 
   int _currentPageIndex = 0;
 
-  final List<Widget> _screens = [
-    SchoolHomeScreen(),
-    SchoolMessageScreen(),
-  ];
-  
+  final List<Widget> _screens = [SchoolHomeScreen(), SchoolMessageScreen()];
+
+  @override
+  void initState() {
+    super.initState();
+
+    scrollController = ref.watch(schoolDeatailScrollControllerProvider);
+
+    _navBarAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 600),
+    )..forward();
+
+    _tween = Tween(begin: Offset(0, -1), end: .zero);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController.addListener(() async {
+        if (scrollController.hasClients) {
+          if (scrollController.position.userScrollDirection ==
+              ScrollDirection.reverse) {
+            await _navBarAnimationController.reverse();
+          } else {
+            await _navBarAnimationController.forward();
+          }
+
+          setState(() {});
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _navBarAnimationController.dispose();
+    scrollController.dispose();
+    scrollController.removeListener;
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,48 +149,64 @@ class _SchoolDetailState extends State<SchoolDetail> {
         leadingWidth: double.infinity,
       ),
 
-      body:  Column(
+      body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                onPressed: () {
-                  _pageController.animateToPage(
-                    0,
-                    duration: Duration(milliseconds: 400),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                icon: Row(
-                  children: [
-                    ImageIcon(
-                       AssetImage(
-                         _currentPageIndex == 0 ? AppAssets.homeActiveIcon :  AppAssets.homeIcon
-                       ), 
+          SizeTransition(
+            sizeFactor: CurvedAnimation(
+              parent: _navBarAnimationController,
+              curve: Curves.easeInOut,
+            ),
+            child: SlideTransition(
+              position: CurvedAnimation(
+                parent: _navBarAnimationController,
+                curve: Curves.easeInOut,
+              ).drive(_tween),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      _pageController.animateToPage(
+                        0,
+                        duration: Duration(milliseconds: 400),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    icon: Row(
+                      children: [
+                        ImageIcon(
+                          AssetImage(
+                            _currentPageIndex == 0
+                                ? AppAssets.homeActiveIcon
+                                : AppAssets.homeIcon,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      _pageController.animateToPage(
+                        1,
+                        duration: Duration(milliseconds: 400),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    icon: Row(
+                      children: [
+                        ImageIcon(
+                          AssetImage(
+                            _currentPageIndex == 1
+                                ? AppAssets.messageActiveIcon
+                                : AppAssets.messageIcon,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              IconButton(
-                onPressed: () {
-                  _pageController.animateToPage(
-                    1,
-                    duration: Duration(milliseconds: 400),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                icon: Row(
-                  children: [
-                    ImageIcon(
-                      AssetImage(
-                       _currentPageIndex == 1 ? AppAssets.messageActiveIcon : AppAssets.messageIcon
-                      )
-                    ),
-                  ],
-                ),
-              )
-            ],
+            ),
           ),
 
           // MENSAGEM!
@@ -162,48 +220,9 @@ class _SchoolDetailState extends State<SchoolDetail> {
               controller: _pageController,
               children: _screens,
             ),
-          )
+          ),
         ],
       ),
-      
-      // CORPO DA SCREEM!
-      // Column(
-      //   children: [
-      //     Expanded(
-      //       child: SingleChildScrollView(
-      //         child: Column(
-      //           children: List.generate(33, (index) {
-      //             return Container(
-      //               margin: const .all(16.0),
-      //               height: 24.0,
-      //               width: double.infinity,
-      //               decoration: BoxDecoration(
-      //                 color: Colors.grey,
-      //                 borderRadius: BorderRadius.circular(12.0),
-      //               ),
-      //             );
-      //           }),
-      //         ),
-      //       ),
-      //     ),
-
-      //     Padding(
-      //       padding: const .only(left: 16.0, right: 16.0, bottom: 24.0),
-      //       child: Form(
-      //         child: TextFormField(
-      //           decoration: InputDecoration(
-      //             border: OutlineInputBorder(
-      //               borderRadius: BorderRadius.circular(24.0),
-      //               borderSide: BorderSide(
-      //                 color: Colors.grey,
-      //               ),
-      //             )
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ],
-      // ),
     );
   }
 }
